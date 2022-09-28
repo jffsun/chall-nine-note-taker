@@ -31,7 +31,8 @@ notes.post('/', (req, res) => {
 
       res.json(`Note added successfully 🚀`);
       console.log(notesData);
-      
+    
+    // If th
     } else {
       res.error('Error in adding note');
     }
