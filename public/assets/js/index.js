@@ -33,6 +33,7 @@ const getNotes = () =>
     },
   });
 
+// saveNote sends a POST request with the stringified note as the request body. Sends the note object to our endpoint '/api/notes'
 const saveNote = (note) =>
   fetch('/api/notes', {
     method: 'POST',
@@ -42,6 +43,7 @@ const saveNote = (note) =>
     body: JSON.stringify(note),
   });
 
+// deleteNote takes the user requested ID and sends DELETE request for that note
 const deleteNote = (id) =>
   fetch(`/api/notes/${id}`, {
     method: 'DELETE',
@@ -50,14 +52,18 @@ const deleteNote = (id) =>
     },
   });
 
+// Renders a note to the text area 
 const renderActiveNote = () => {
   hide(saveNoteBtn);
 
+  // If the note in the text area has an id and exists in database, set to read only. It's values (stored in db) are displayed in the text area
   if (activeNote.id) {
     noteTitle.setAttribute('readonly', true);
     noteText.setAttribute('readonly', true);
     noteTitle.value = activeNote.title;
     noteText.value = activeNote.text;
+  
+  // If note in text area doesn't exist, remove read only and allow user to interact. Note title and text are set to empty string  
   } else {
     noteTitle.removeAttribute('readonly');
     noteText.removeAttribute('readonly');
@@ -66,11 +72,14 @@ const renderActiveNote = () => {
   }
 };
 
+// handleNoteSave creates newNote object, setting the value inside the noteTitle and noteText document containers to newNote object's key values. 
 const handleNoteSave = () => {
   const newNote = {
     title: noteTitle.value,
     text: noteText.value,
   };
+  
+  // POST request with newNote object, then 
   saveNote(newNote).then(() => {
     getAndRenderNotes();
     renderActiveNote();
@@ -95,7 +104,7 @@ const handleNoteDelete = (e) => {
   });
 };
 
-// Sets the activeNote and displays it
+// Sets the activeNote in text area and displays it
 const handleNoteView = (e) => {
   e.preventDefault();
   activeNote = JSON.parse(e.target.parentElement.getAttribute('data-note'));
@@ -118,8 +127,14 @@ const handleRenderSaveBtn = () => {
 
 // Render the list of note titles
 const renderNoteList = async (notes) => {
+
+  // Takes notes (from db) and returns them as a Javascript object
   let jsonNotes = await notes.json();
+
+  // If the window location endpoint is '/notes'
   if (window.location.pathname === '/notes') {
+
+    // Create an empty HTML element for each note
     noteList.forEach((el) => (el.innerHTML = ''));
   }
 
@@ -154,23 +169,28 @@ const renderNoteList = async (notes) => {
     return liEl;
   };
 
+  // If no notes found in db, send user 'No saved Notes'
   if (jsonNotes.length === 0) {
     noteListItems.push(createLi('No saved Notes', false));
   }
 
+  // For each note found in db, create a list item  with the note's title, then stringify note
   jsonNotes.forEach((note) => {
     const li = createLi(note.title);
     li.dataset.note = JSON.stringify(note);
-
+    
+    // Push stringified note to noteListItems array
     noteListItems.push(li);
   });
 
+  // If we are in '/notes' endpoint: for each note in noteListItems array, append that note to noteList HTML container
   if (window.location.pathname === '/notes') {
     noteListItems.forEach((note) => noteList[0].append(note));
   }
 };
 
 // Gets notes from the db and renders them to the sidebar
+// First getNotes function sends GET request to '/api/notes' endpoint to get all notes from db. Then 
 const getAndRenderNotes = () => getNotes().then(renderNoteList);
 
 if (window.location.pathname === '/notes') {
