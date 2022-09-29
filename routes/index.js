@@ -5,7 +5,7 @@ const notesRouter = require('./notes');
 
 const app = express();
 
-// Mount path to notesRouter
+// Mounts path to notesRouter at '/notes'
 app.use('/notes', notesRouter);
 
 module.exports = app;
